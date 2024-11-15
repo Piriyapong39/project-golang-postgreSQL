@@ -2,7 +2,6 @@ package Crude
 
 import (
 	"database/sql"
-	"fmt"
 )
 
 type Product struct {
@@ -50,21 +49,16 @@ func DeleteProduct(db *sql.DB, id int) error {
 }
 
 func GetProducts(db *sql.DB) ([]Product, error) {
-	products := []Product{}
-
+	var products []Product
 	rows, err := db.Query("SELECT * FROM tb_products")
-	rows.Close()
 	if err != nil {
 		return nil, err
 	}
+
 	for rows.Next() {
 		p := new(Product)
-		err := rows.Scan(&p.Id, &p.Name, &p.Price, &p.Supplier_id)
-		if err != nil {
-			return nil, err
-		}
-		fmt.Println(p)
+		rows.Scan(&p.Id, &p.Name, &p.Price, &p.Supplier_id)
 		products = append(products, *p)
 	}
-	return products, err
+	return products, nil
 }

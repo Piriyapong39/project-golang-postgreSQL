@@ -54,4 +54,12 @@ func main() {
 		fmt.Println(err)
 	}
 	fmt.Println("Delete product successfully")
+
+	// Get all products
+	results, err := Crude.GetProducts(db)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(results)
+
 }

@@ -61,4 +61,12 @@ func main() {
 		fmt.Println(err)
 	}
 	fmt.Println(results)
+
+	// Get products with supplier name
+	productsAndSupplierName, err := Crude.GetProductsAndSupplierName(db)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(productsAndSupplierName)
+
 }

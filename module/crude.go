@@ -11,6 +11,12 @@ type Product struct {
 	Supplier_id int
 }
 
+type ProductAndSupplier struct {
+	Name          string
+	Price         int
+	Supplier_Name string
+}
+
 func CreateProduct(db *sql.DB, name string, price int, supplier_id int) error {
 	_, err := db.Exec("INSERT INTO tb_products (name, price, supplier_id) VALUES ($1, $2, $3)",
 		name, price, supplier_id)
@@ -54,7 +60,7 @@ func GetProducts(db *sql.DB) ([]Product, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	defer rows.Close()
 	for rows.Next() {
 		p := new(Product)
 		rows.Scan(&p.Id, &p.Name, &p.Price, &p.Supplier_id)
@@ -62,3 +68,61 @@ func GetProducts(db *sql.DB) ([]Product, error) {
 	}
 	return products, nil
 }
+
+func GetProductsAndSupplierName(db *sql.DB) ([]ProductAndSupplier, error) {
+	var products []ProductAndSupplier
+
+	rows, err := db.Query(`
+		SELECT 
+			p.name,
+			p.price,
+			s.name
+		FROM tb_products p
+		INNER JOIN 
+			tb_supplier s ON p.supplier_id = s.id
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		p := new(ProductAndSupplier)
+		err := rows.Scan(&p.Name, &p.Price, &p.Supplier_Name)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, *p)
+	}
+	return products, nil
+}
+
+// func GetProductsAndSupplierName(db *sql.DB) ([]ProductAndSupplier, error) {
+// 	var products []ProductAndSupplier
+// 	rows, err := db.Query(`
+//         SELECT
+//             p.name,
+//             p.price,
+//             s.name
+//         FROM
+//             tb_products p
+//         INNER JOIN
+//             tb_supplier s ON p.supplier_id = s.id
+//     `)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer rows.Close()
+// 	for rows.Next() {
+// 		var p ProductAndSupplier
+// 		err := rows.Scan(&p.ProductName, &p.ProductPrice, &p.SupplierName)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		products = append(products, p)
+// 	}
+// 	if err = rows.Err(); err != nil {
+// 		return nil, err
+// 	}
+
+// 	return products, nil
+// }
